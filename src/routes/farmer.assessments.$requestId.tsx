@@ -1,3 +1,5 @@
+import { ownsRequest } from "@/lib/demo/actions";
+import { FarmerPost } from "@/components/anisuri/harvest-posts";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Truck, Users, Wrench } from "lucide-react";
 import { toast } from "sonner";
@@ -35,7 +37,7 @@ const STEPS: { id: NextStep; label: string; icon: typeof Truck }[] = [
 function AssessmentDetail() {
   const { requestId } = Route.useParams();
   const state = useDemoState();
-  const r = state.requests.find((x) => x.id === requestId && x.farmerKey === "me");
+  const r = state.requests.find((x) => x.id === requestId && ownsRequest(state, x));
   if (!r) {
     return (
       <EmptyState
@@ -48,6 +50,7 @@ function AssessmentDetail() {
       />
     );
   }
+  if (r.responses) return <FarmerPost post={r} />;
   const buyer = state.buyers.find((b) => b.id === r.buyerId);
 
   return (

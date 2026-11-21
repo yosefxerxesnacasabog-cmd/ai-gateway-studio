@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { TraderBoard } from "@/components/anisuri/harvest-posts";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Archive, BookOpen, House, Inbox } from "lucide-react";
 
 import { AppShell, type NavItem } from "@/components/anisuri/shell";
@@ -16,10 +17,12 @@ const ITEMS: NavItem[] = [
 ];
 
 function TraderLayout() {
+  const { pathname } = useLocation();
   const state = useDemoState();
   const buyer = state.buyers.find((b) => b.id === state.traderBuyerId);
   return (
     <AppShell items={ITEMS} who={buyer?.name ?? "Demo trader"} roleLabel="Trader / buyer" bottomNav={false}>
+      {["/trader", "/trader/requests"].includes(pathname.replace(/\/$/, "")) && <TraderBoard />}
       <Outlet />
     </AppShell>
   );

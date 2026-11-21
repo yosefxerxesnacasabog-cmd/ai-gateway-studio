@@ -1,7 +1,8 @@
+import { PRODUCTS } from "./seed";
 import type { ProductId, RequestStatus } from "./types";
 
 export const asProduct = (v: unknown): ProductId | undefined =>
-  v === "corn" || v === "palay" || v === "rubber" ? v : undefined;
+  PRODUCTS.find((product) => product.id === v)?.id;
 
 export const asStatus = (v: unknown): RequestStatus | undefined =>
   v === "pending" || v === "scheduled" || v === "completed" || v === "unavailable" ? v : undefined;

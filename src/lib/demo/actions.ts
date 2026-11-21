@@ -28,6 +28,11 @@ export function currentFarmerName(state: DemoState): string {
   return "Guest farmer";
 }
 
+export function ownsRequest(state: DemoState, request: AssessmentRequest) {
+  if (request.farmerKey === "me") return true; // Existing demonstration records.
+  return request.farmerKey === (state.session.role === "farmer" ? state.session.mobile : "guest");
+}
+
 function nextRequestId(state: DemoState): string {
   const max = state.requests.reduce((n, r) => Math.max(n, Number(r.id.replace(/\D/g, "")) || 0), 1000);
   return `AS-${max + 1}`;
@@ -35,16 +40,17 @@ function nextRequestId(state: DemoState): string {
 
 export function submitRequest(state: DemoState, input: NewRequestInput, now: Date): DemoState {
   const buyer = state.buyers.find((b) => b.id === input.buyerId);
-  if (!buyer || !buyer.guides[input.product]) {
+  if (input.buyerId && (!buyer || !buyer.guides[input.product])) {
     throw new Error("This buyer does not accept the selected product.");
   }
   if (!(input.quantity > 0)) throw new Error("Quantity must be more than zero.");
   const request: AssessmentRequest = {
     id: nextRequestId(state),
-    farmerKey: "me",
+    farmerKey: state.session.role === "farmer" ? state.session.mobile : "guest",
     farmerName: currentFarmerName(state),
     product: input.product,
     buyerId: input.buyerId,
+    ...(input.buyerId ? {} : { responses: [] }),
     quantity: input.quantity,
     unit: input.unit,
     condition: input.condition,
@@ -139,7 +145,7 @@ export function saveGuide(
 }
 
 export function farmerSummary(state: DemoState) {
-  const mine = state.requests.filter((r) => r.farmerKey === "me");
+  const mine = state.requests.filter((r) => ownsRequest(state, r));
   return {
     total: mine.length,
     inProgress: mine.filter((r) => r.status === "pending" || r.status === "scheduled").length,

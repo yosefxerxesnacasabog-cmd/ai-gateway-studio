@@ -4,6 +4,13 @@ export const PRODUCTS: { id: ProductId; name: string; local: string; hint: strin
   { id: "corn", name: "Corn", local: "Mais", hint: "Shelled yellow or white corn" },
   { id: "palay", name: "Palay", local: "Humay", hint: "Unmilled rice grain" },
   { id: "rubber", name: "Rubber", local: "Goma", hint: "Cup lumps from tapping" },
+  { id: "banana", name: "Banana", local: "Saging", hint: "" },
+  { id: "cassava", name: "Cassava", local: "Kamoteng kahoy", hint: "" },
+  { id: "coconut", name: "Coconut", local: "Niyog", hint: "" },
+  { id: "coffee", name: "Coffee", local: "Kape", hint: "" },
+  { id: "cacao", name: "Cacao", local: "Kakaw", hint: "" },
+  { id: "sweet-potato", name: "Sweet potato", local: "Kamote", hint: "" },
+  { id: "tomato", name: "Tomato", local: "Kamatis", hint: "" },
 ];
 
 export const AREAS = ["Banisilan", "Alamada", "Carmen", "Kabacan"] as const;

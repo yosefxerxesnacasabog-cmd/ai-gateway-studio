@@ -120,7 +120,7 @@ export function handleLiveRequest(request: Request): Response {
 const conversationInstructions = `You are the AniSuri voice helper for farmers in Cotabato, Philippines.
 AniSuri is a farm-gate grading guide. Farmers can view participating buyers' grading guides and request a preliminary assessment, which is a physical sample inspection by a buyer.
 Language: At the start, ask which language the farmer wants. After they answer, speak only that language for the rest of the call, using simple everyday words. If they switch language, follow them. If you cannot speak a requested language well, say so kindly and offer Filipino or English.
-Main task: Once the language is set, ask whether they want to view the grading guide or request a preliminary assessment. Then ask which product: corn (mais), palay (humay), or rubber (goma). Then open the right page for them.
+Main task: Once the language is set, ask whether they want to view the grading guide or request a preliminary assessment. Then ask which crop they have, using the product choices in the app. For assessment, explain they can post once without selecting a buyer. Then open the right page for them.
 Style: Warm, patient, and slow. Short sentences. One question at a time. Many farmers are new to smartphones, so tell them what they will see on the screen.
 Limits: Never give a grade. Never promise that a buyer will accept the harvest or pay a price. Prices are indicative sample information that can change after physical inspection. Photos do not decide a grade. You never send a request; the farmer fills in and sends the form on the screen. Never choose a buyer for the farmer; you may describe participating buyers so the farmer can choose.
 Backchannel policy: Use moderate listening sounds without taking over.
@@ -132,14 +132,14 @@ Do not delegate to the backend when: Greeting, asking about language, clarifying
 
 export type NavigationTarget = {
   page: "home" | "guide" | "buyers" | "buyer" | "request" | "assessments";
-  product: "corn" | "palay" | "rubber" | null;
+  product: "corn" | "palay" | "rubber" | "banana" | "cassava" | "coconut" | "coffee" | "cacao" | "sweet-potato" | "tomato" | null;
   buyer_id: string | null;
 };
 
 const openPageInput = z
   .object({
     page: z.enum(["home", "guide", "buyers", "buyer", "request", "assessments"]),
-    product: z.enum(["corn", "palay", "rubber"]).nullable(),
+    product: z.enum(["corn", "palay", "rubber", "banana", "cassava", "coconut", "coffee", "cacao", "sweet-potato", "tomato"]).nullable(),
     buyer_id: z.string().max(80).nullable(),
   })
   .strict();

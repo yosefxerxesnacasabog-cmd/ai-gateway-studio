@@ -1,21 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Camera, CheckCircle2, ChevronDown, Pencil, Send, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-
 import { describedBy, Field, fieldClass } from "@/components/anisuri/form";
 import { NoticePanel, PageHeader, TipPanel } from "@/components/anisuri/page";
 import { ProductPicker } from "@/components/anisuri/product-picker";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { submitRequest } from "@/lib/demo/actions";
-import { formatPrice, formatQuantity, productName } from "@/lib/demo/format";
+import { formatQuantity, productName } from "@/lib/demo/format";
 import { CONDITIONS } from "@/lib/demo/seed";
 import { asProduct, asText, compact } from "@/lib/demo/search";
-import { getDemoState, updateDemo, useDemoState } from "@/lib/demo/store";
+import { updateDemo } from "@/lib/demo/store";
 import type { ProductId, QuantityUnit } from "@/lib/demo/types";
 import { resizePhoto } from "@/lib/photo";
 import { cn } from "@/lib/utils";
-
 export const Route = createFileRoute("/farmer/request")({
   validateSearch: (s: Record<string, unknown>) => compact({ product: asProduct(s["product"]), buyer: asText(s["buyer"]) }),
   head: () => ({
@@ -30,103 +28,81 @@ export const Route = createFileRoute("/farmer/request")({
   }),
   component: RequestPage,
 });
-
 type Draft = {
   product: ProductId | null;
-  buyerId: string | null;
   quantity: string;
   unit: QuantityUnit;
-  condition: string;
+  conditions: string[];
+  other: string;
   location: string;
   remarks: string;
   photo: string | null;
 };
-
 type Errors = Partial<Record<"product" | "buyerId" | "quantity" | "condition" | "location" | "photo", string>>;
-
-const STEPS = ["Product and buyer", "Your harvest", "Review and send"] as const;
-
-function validateStep(step: number, d: Draft, buyerAccepts: boolean): Errors {
+const STEPS = ["Product", "Your harvest", "Review and send"] as const;
+function validateStep(step: number, d: Draft): Errors {
   const e: Errors = {};
   if (step >= 0) {
     if (!d.product) e.product = "Choose a product.";
-    if (!d.buyerId) e.buyerId = "Choose a participating buyer.";
-    else if (!buyerAccepts) e.buyerId = "This buyer does not accept the chosen product.";
   }
   if (step >= 1) {
     const q = Number(d.quantity);
     if (!d.quantity.trim() || !Number.isFinite(q) || q <= 0) e.quantity = "Enter an estimated quantity more than 0.";
     else if (q > 1_000_000) e.quantity = "That quantity looks too large. Please check it.";
-    if (!d.condition) e.condition = "Choose the product condition.";
+    if (!d.conditions.length || (d.conditions.includes("Other") && !d.other.trim())) e.condition = "Select a condition and describe Other if selected.";
     if (d.location.trim().length < 3) e.location = "Enter your barangay and municipality.";
   }
   return e;
 }
-
 function RequestPage() {
   const search = Route.useSearch();
-  const state = useDemoState();
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState<Errors>({});
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [optionalOpen, setOptionalOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
-
-  const initialBuyer = (product: ProductId | undefined, buyer: string | undefined) =>
-    product && buyer && getDemoState().buyers.find((b) => b.id === buyer)?.guides[product] ? buyer : null;
-
   const [draft, setDraft] = useState<Draft>(() => ({
     product: search.product ?? null,
-    buyerId: initialBuyer(search.product, search.buyer),
     quantity: "",
     unit: "sacks",
-    condition: "",
+    conditions: [], other: "",
     location: "",
     remarks: "",
     photo: null,
   }));
-
   // The voice helper or a guide link can open this page with a new product/buyer.
   useEffect(() => {
     if (!search.product) return;
-    setDraft((d) => ({ ...d, product: search.product ?? d.product, buyerId: initialBuyer(search.product, search.buyer) ?? d.buyerId }));
-  }, [search.product, search.buyer]);
-
+    setDraft((d) => ({ ...d, product: search.product ?? d.product }));
+  }, [search.product]);
   useEffect(() => {
     headingRef.current?.focus();
   }, [step, submittedId]);
-
-  const buyers = draft.product ? state.buyers.filter((b) => draft.product && b.guides[draft.product]) : [];
-  const buyer = state.buyers.find((b) => b.id === draft.buyerId);
-  const buyerAccepts = Boolean(buyer && draft.product && buyer.guides[draft.product]);
-
+  const conditionText = draft.conditions.map(c => c === "Other" ? draft.other.trim() : c).join("; ");
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((d) => ({ ...d, [key]: value }));
-
   const next = () => {
-    const e = validateStep(step, draft, buyerAccepts);
+    const e = validateStep(step, draft );
     setErrors(e);
     if (Object.keys(e).length === 0) setStep((s) => Math.min(2, s + 1));
   };
-
   const send = () => {
-    const e = validateStep(1, draft, buyerAccepts);
-    if (Object.keys(e).length || !draft.product || !draft.buyerId) {
+    const e = validateStep(1, draft );
+    if (Object.keys(e).length || !draft.product) {
       setErrors(e);
       setStep(e.product || e.buyerId ? 0 : 1);
       return;
     }
     const product = draft.product;
-    const buyerId = draft.buyerId;
     let newId = "";
     updateDemo((s) => {
       const nextState = submitRequest(
         s,
         {
           product,
-          buyerId,
+          buyerId: "",
           quantity: Number(draft.quantity),
           unit: draft.unit,
-          condition: draft.condition,
+          condition: conditionText,
           location: draft.location,
           remarks: draft.remarks,
           photo: draft.photo,
@@ -138,7 +114,6 @@ function RequestPage() {
     });
     setSubmittedId(newId);
   };
-
   if (submittedId) {
     return (
       <div className="pt-4 text-center">
@@ -147,8 +122,7 @@ function RequestPage() {
           Request sent
         </h1>
         <p className="mx-auto mt-2 max-w-md text-lg text-muted-foreground">
-          {buyer?.name} will review your request <span className="font-bold text-foreground">{submittedId}</span>. Its
-          status is now <span className="font-bold text-foreground">Pending</span>.
+          Participating buyers can now respond to your post {submittedId}. Check My Assessments for replies.
         </p>
         <NoticePanel className="mx-auto mt-6 max-w-md text-left">
           <p>This request does not guarantee an assessment will be arranged, or that your product will be accepted.</p>
@@ -166,14 +140,12 @@ function RequestPage() {
       </div>
     );
   }
-
   return (
     <div>
       <PageHeader
         title="Request Assessment"
-        intro="Ask a participating buyer to inspect a sample of your harvest before you deliver."
+        intro="Share your harvest details once and review responses from participating buyers."
       />
-
       <ol className="mb-6 grid grid-cols-3 gap-2" aria-label="Form steps">
         {STEPS.map((label, i) => (
           <li key={label} aria-current={i === step ? "step" : undefined}>
@@ -184,11 +156,9 @@ function RequestPage() {
           </li>
         ))}
       </ol>
-
       <h2 ref={headingRef} tabIndex={-1} className="mb-4 text-xl font-bold outline-none">
         Step {step + 1} of 3: {STEPS[step]}
       </h2>
-
       {step === 0 && (
         <div className="space-y-6">
           <div>
@@ -197,74 +167,13 @@ function RequestPage() {
               idPrefix="req-product"
               value={draft.product}
               invalid={Boolean(errors.product)}
-              onChange={(p) =>
-                setDraft((d) => ({
-                  ...d,
-                  product: p,
-                  buyerId: p && d.buyerId && state.buyers.find((b) => b.id === d.buyerId)?.guides[p] ? d.buyerId : null,
-                }))
-              }
+              onChange={(p) => set("product", p)}
             />
             {errors.product && <p role="alert" className="mt-1.5 text-sm font-semibold text-destructive">{errors.product}</p>}
           </div>
-
-          <fieldset>
-            <legend className="text-base font-bold">
-              Participating buyer <span className="font-normal text-muted-foreground">(required)</span>
-            </legend>
-            <p className="text-sm text-muted-foreground">Only buyers who accept the chosen product are shown.</p>
-            {!draft.product ? (
-              <p className="mt-2 rounded-xl border border-dashed border-input p-4 text-muted-foreground">Choose a product first.</p>
-            ) : buyers.length === 0 ? (
-              <p className="mt-2 rounded-xl border border-dashed border-input p-4 text-muted-foreground">
-                No participating buyer accepts {productName(draft.product)} right now.
-              </p>
-            ) : (
-              <div className="mt-2 grid gap-2">
-                {buyers.map((b) => {
-                  const selected = b.id === draft.buyerId;
-                  const price = draft.product ? formatPrice(b.guides[draft.product]?.price ?? null) : null;
-                  return (
-                    <label
-                      key={b.id}
-                      className={cn(
-                        "flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4",
-                        selected ? "border-leaf bg-leaf-soft" : errors.buyerId ? "border-destructive/60 bg-card" : "border-border bg-card hover:bg-muted",
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="buyer"
-                        value={b.id}
-                        checked={selected}
-                        onChange={() => set("buyerId", b.id)}
-                        className="size-5 accent-primary"
-                      />
-                      <span className="flex-1">
-                        <span className="block font-bold">{b.name}</span>
-                        <span className="block text-sm text-muted-foreground">
-                          {b.municipality} · {price ? `${price} (indicative)` : "No price shared"}
-                        </span>
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            )}
-            {errors.buyerId && <p role="alert" className="mt-1.5 text-sm font-semibold text-destructive">{errors.buyerId}</p>}
-          </fieldset>
-          {draft.product && draft.buyerId && (
-            <Link
-              to="/farmer/guide"
-              search={{ product: draft.product, buyer: draft.buyerId }}
-              className="inline-flex min-h-11 items-center font-bold text-primary underline underline-offset-4"
-            >
-              Read this buyer's grading guide first
-            </Link>
-          )}
+          <NoticePanel>Post once for participating buyers. You can choose a buyer after reading their responses.</NoticePanel>
         </div>
       )}
-
       {step === 1 && (
         <div className="space-y-6">
           <Field id="quantity" label="Estimated quantity" hint="A rough number is fine." error={errors.quantity}>
@@ -296,35 +205,34 @@ function RequestPage() {
               </div>
             </div>
           </Field>
-
           <fieldset>
             <legend className="text-base font-bold">
               Product condition <span className="font-normal text-muted-foreground">(required)</span>
             </legend>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {CONDITIONS.map((c) => (
+              {[...CONDITIONS, "Other"].map((c) => (
                 <label
                   key={c}
                   className={cn(
                     "flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-2",
-                    draft.condition === c ? "border-leaf bg-leaf-soft" : errors.condition ? "border-destructive/60 bg-card" : "border-border bg-card hover:bg-muted",
+                    draft.conditions.includes(c) ? "border-leaf bg-leaf-soft" : errors.condition ? "border-destructive/60 bg-card" : "border-border bg-card hover:bg-muted",
                   )}
                 >
                   <input
-                    type="radio"
+                    type="checkbox"
                     name="condition"
                     value={c}
-                    checked={draft.condition === c}
-                    onChange={() => set("condition", c)}
+                    checked={draft.conditions.includes(c)}
+                    onChange={() => set("conditions", draft.conditions.includes(c) ? draft.conditions.filter(value => value !== c) : [...draft.conditions, c])}
                     className="size-5 accent-primary"
                   />
                   <span className="font-semibold">{c}</span>
                 </label>
               ))}
             </div>
+            {draft.conditions.includes("Other") && <label className="block font-semibold">Describe the other condition<input className="mt-2 block w-full rounded-xl border p-3" value={draft.other} maxLength={300} onChange={e => set("other", e.target.value)} /></label>}
             {errors.condition && <p role="alert" className="mt-1.5 text-sm font-semibold text-destructive">{errors.condition}</p>}
           </fieldset>
-
           <Field id="location" label="Farm location" hint="Barangay and municipality, e.g. Brgy. Kalawaig, Banisilan" error={errors.location}>
             <input
               id="location"
@@ -336,7 +244,6 @@ function RequestPage() {
               aria-describedby={describedBy("location", true, errors.location)}
             />
           </Field>
-
           <Collapsible open={optionalOpen} onOpenChange={setOptionalOpen} className="rounded-2xl border border-border bg-card">
             <CollapsibleTrigger className="focus-ring flex min-h-14 w-full items-center justify-between rounded-2xl px-4 text-left font-bold">
               <span>
@@ -373,16 +280,14 @@ function RequestPage() {
           </Collapsible>
         </div>
       )}
-
-      {step === 2 && draft.product && buyer && (
+      {step === 2 && draft.product && (
         <div className="space-y-4">
-          <ReviewBlock title="Product and buyer" onEdit={() => setStep(0)}>
+          <ReviewBlock title="Product" onEdit={() => setStep(0)}>
             <ReviewRow label="Product" value={productName(draft.product)} />
-            <ReviewRow label="Participating buyer" value={`${buyer.name}, ${buyer.municipality}`} />
           </ReviewBlock>
           <ReviewBlock title="Your harvest" onEdit={() => setStep(1)}>
             <ReviewRow label="Estimated quantity" value={formatQuantity({ quantity: Number(draft.quantity), unit: draft.unit })} />
-            <ReviewRow label="Condition" value={draft.condition} />
+            <ReviewRow label="Condition" value={conditionText} />
             <ReviewRow label="Farm location" value={draft.location} />
             <ReviewRow label="Remarks" value={draft.remarks.trim() || "None"} />
             <div className="py-2">
@@ -402,7 +307,6 @@ function RequestPage() {
           </NoticePanel>
         </div>
       )}
-
       <div className="mt-8 flex gap-3">
         {step > 0 && (
           <Button variant="outline" size="lg" onClick={() => setStep((s) => s - 1)}>
@@ -419,7 +323,6 @@ function RequestPage() {
           </Button>
         )}
       </div>
-
       {step === 0 && (
         <TipPanel title="Guide or request?" className="mt-6">
           The Grading Guide is for reading. This form asks a buyer to come and inspect your harvest.
@@ -428,7 +331,6 @@ function RequestPage() {
     </div>
   );
 }
-
 function ReviewBlock({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) {
   return (
     <section className="surface-card p-4">
@@ -442,7 +344,6 @@ function ReviewBlock({ title, onEdit, children }: { title: string; onEdit: () =>
     </section>
   );
 }
-
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="py-2">
@@ -451,7 +352,6 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
 function PhotoField({
   photo,
   error,

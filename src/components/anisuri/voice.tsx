@@ -1,3 +1,4 @@
+import { asProduct } from "@/lib/demo/search";
 import { useNavigate } from "@tanstack/react-router";
 import { AudioLines, Loader2, Mic, MicOff, PhoneOff, Play, X } from "lucide-react";
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
@@ -33,7 +34,7 @@ export function useVoiceHelper() {
   return value;
 }
 
-const isProduct = (v: unknown): v is ProductId => v === "corn" || v === "palay" || v === "rubber";
+const isProduct = (v: unknown): v is ProductId => asProduct(v) !== undefined;
 
 export function VoiceProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();

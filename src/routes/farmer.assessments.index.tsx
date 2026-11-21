@@ -1,3 +1,4 @@
+import { ownsRequest } from "@/lib/demo/actions";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { EmptyState, PageHeader } from "@/components/anisuri/page";
@@ -30,7 +31,7 @@ function AssessmentsPage() {
   const { status } = Route.useSearch();
   const navigate = useNavigate({ from: "/farmer/assessments/" });
   const state = useDemoState();
-  const mine = state.requests.filter((r) => r.farmerKey === "me" && (!status || r.status === status));
+  const mine = state.requests.filter((r) => ownsRequest(state, r) && (!status || r.status === status));
 
   return (
     <div>
@@ -77,7 +78,7 @@ function AssessmentsPage() {
                 <StatusBadge status={r.status} />
               </div>
               <p className="mt-1 text-muted-foreground">
-                {state.buyers.find((b) => b.id === r.buyerId)?.name} · Sent {formatDate(r.submittedAt)} · {r.id}
+                {state.buyers.find((b) => b.id === r.buyerId)?.name ?? "Open post"} · {r.responses ? r.responses.length + " responses · " : ""}Sent {formatDate(r.submittedAt)} · {r.id}
               </p>
             </Link>
           ))
