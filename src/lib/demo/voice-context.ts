@@ -1,3 +1,4 @@
+import { ownsRequest } from "@/lib/demo/actions";
 import { currentFarmerName } from "./actions";
 import { formatPrice, productName, STATUS_INFO } from "./format";
 import { PRODUCTS } from "./seed";
@@ -20,7 +21,7 @@ export function buildVoiceContext(state: DemoState): string {
       );
     }
   }
-  const mine = state.requests.filter((r) => r.farmerKey === "me");
+  const mine = state.requests.filter((r) => ownsRequest(state, r));
   lines.push("This farmer's assessment requests:");
   if (mine.length === 0) lines.push("- none yet");
   for (const r of mine) {

@@ -1,3 +1,5 @@
+import { ownsRequest } from "@/lib/demo/actions";
+import { DemandPanel, ResponseUpdates } from "@/components/anisuri/harvest-posts";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, ChevronRight, ClipboardList, SquarePen, Users } from "lucide-react";
 
@@ -35,7 +37,7 @@ function FarmerHome() {
   const state = useDemoState();
   const name = currentFarmerName(state);
   const summary = farmerSummary(state);
-  const recent = state.requests.filter((r) => r.farmerKey === "me").slice(0, 3);
+  const recent = state.requests.filter((r) => ownsRequest(state, r)).slice(0, 3);
 
   return (
     <div>
@@ -76,6 +78,7 @@ function FarmerHome() {
       </nav>
 
       <VoiceLauncher className="mt-4" />
+      <ResponseUpdates />
 
       <TipPanel title="Before you bring your harvest" className="mt-6">
         Each buyer has their own requirements. Moisture, cleanliness and defects can change the grade and price. Check
@@ -103,7 +106,7 @@ function FarmerHome() {
                       {productName(r.product)} · {formatQuantity(r)}
                     </span>
                     <span className="block truncate text-muted-foreground">
-                      {state.buyers.find((b) => b.id === r.buyerId)?.name} · {formatDate(r.submittedAt)}
+                      {state.buyers.find((b) => b.id === r.buyerId)?.name ?? "Open post"} · {formatDate(r.submittedAt)}
                     </span>
                   </span>
                   <StatusBadge status={r.status} />
@@ -113,6 +116,7 @@ function FarmerHome() {
           </ul>
         )}
       </section>
+    <DemandPanel />
     </div>
   );
 }

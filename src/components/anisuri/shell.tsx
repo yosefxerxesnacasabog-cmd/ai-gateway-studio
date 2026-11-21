@@ -37,6 +37,7 @@ export function AppShell({
   bottomNav: boolean;
 }) {
   const { pathname } = useLocation();
+  const farmerHome = pathname.replace(/\/$/, "") === "/farmer";
   const navigate = useNavigate();
   const signOut = () => {
     updateDemo((s) => ({ ...s, session: { role: "none" } }));
@@ -51,7 +52,7 @@ export function AppShell({
           <Logo />
         </Link>
         <p className="mt-1 px-2 text-sm text-muted-foreground">{roleLabel}</p>
-        <nav aria-label="Main" className="mt-8 flex flex-col gap-1">
+        {!farmerHome && <nav aria-label="Main" className="mt-8 flex flex-col gap-1">
           {items.map((item) => {
             const active = isActive(pathname, item);
             const Icon = item.icon;
@@ -70,7 +71,7 @@ export function AppShell({
               </Link>
             );
           })}
-        </nav>
+        </nav>}
         <div className="mt-auto rounded-xl border border-border bg-card p-3">
           <p className="text-sm text-muted-foreground">Using as</p>
           <p className="font-bold">{who}</p>
@@ -116,11 +117,11 @@ export function AppShell({
         </nav>
       )}
 
-      <main className={cn("mx-auto max-w-3xl px-4 pt-5 md:px-8 md:pb-16 md:pt-10", bottomNav ? "pb-nav-safe" : "pb-16")}>
+      <main className={cn("mx-auto max-w-3xl px-4 pt-5 md:px-8 md:pb-16 md:pt-10", bottomNav && !farmerHome ? "pb-nav-safe" : "pb-16")}>
         {children}
       </main>
 
-      {bottomNav && (
+      {bottomNav && !farmerHome && (
         <nav
           aria-label="Main"
           className="nav-safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card shadow-lift md:hidden"

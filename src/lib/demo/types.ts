@@ -1,4 +1,4 @@
-export type ProductId = "corn" | "palay" | "rubber";
+export type ProductId = "corn" | "palay" | "rubber" | "banana" | "cassava" | "coconut" | "coffee" | "cacao" | "sweet-potato" | "tomato";
 
 export type GradeDescription = { name: string; description: string };
 
@@ -41,6 +41,7 @@ export type NextStep = "deliver" | "prepare" | "other-buyer";
 export type AssessmentRequest = {
   id: string;
   /** "me" marks requests made by the person using the farmer side of the demo. */
+  responses?: { buyerId: string; note: string; grade: string; at: string; unavailable?: boolean; seen?: boolean }[];
   farmerKey: string;
   farmerName: string;
   product: ProductId;
@@ -74,5 +75,6 @@ export type DemoState = {
   session: Session;
   buyers: Buyer[];
   requests: AssessmentRequest[];
+  demand?: { buyerId: string; product: ProductId; updated: string }[];
   traderBuyerId: string;
 };
