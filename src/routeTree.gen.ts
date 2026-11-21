@@ -17,6 +17,8 @@ import { Route as TraderRouteImport } from './routes/trader'
 import { Route as FarmerIndexRouteImport } from './routes/farmer.index'
 import { Route as FarmerGuideRouteImport } from './routes/farmer.guide'
 import { Route as FarmerRequestRouteImport } from './routes/farmer.request'
+import { Route as FarmerAssessmentsIndexRouteImport } from './routes/farmer.assessments.index'
+import { Route as FarmerAssessmentsRequestIdRouteImport } from './routes/farmer.assessments.$requestId'
 import { Route as FarmerBuyersIndexRouteImport } from './routes/farmer.buyers.index'
 import { Route as FarmerBuyersBuyerIdRouteImport } from './routes/farmer.buyers.$buyerId'
 
@@ -60,6 +62,17 @@ const FarmerRequestRoute = FarmerRequestRouteImport.update({
   path: '/request',
   getParentRoute: () => FarmerRoute,
 } as any)
+const FarmerAssessmentsIndexRoute = FarmerAssessmentsIndexRouteImport.update({
+  id: '/assessments/',
+  path: '/assessments/',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerAssessmentsRequestIdRoute =
+  FarmerAssessmentsRequestIdRouteImport.update({
+    id: '/assessments/$requestId',
+    path: '/assessments/$requestId',
+    getParentRoute: () => FarmerRoute,
+  } as any)
 const FarmerBuyersIndexRoute = FarmerBuyersIndexRouteImport.update({
   id: '/buyers/',
   path: '/buyers/',
@@ -80,7 +93,9 @@ export interface FileRoutesByFullPath {
   '/farmer/guide': typeof FarmerGuideRoute
   '/farmer/request': typeof FarmerRequestRoute
   '/farmer/': typeof FarmerIndexRoute
+  '/farmer/assessments/$requestId': typeof FarmerAssessmentsRequestIdRoute
   '/farmer/buyers/$buyerId': typeof FarmerBuyersBuyerIdRoute
+  '/farmer/assessments/': typeof FarmerAssessmentsIndexRoute
   '/farmer/buyers/': typeof FarmerBuyersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -91,7 +106,9 @@ export interface FileRoutesByTo {
   '/farmer/guide': typeof FarmerGuideRoute
   '/farmer/request': typeof FarmerRequestRoute
   '/farmer': typeof FarmerIndexRoute
+  '/farmer/assessments/$requestId': typeof FarmerAssessmentsRequestIdRoute
   '/farmer/buyers/$buyerId': typeof FarmerBuyersBuyerIdRoute
+  '/farmer/assessments': typeof FarmerAssessmentsIndexRoute
   '/farmer/buyers': typeof FarmerBuyersIndexRoute
 }
 export interface FileRoutesById {
@@ -104,7 +121,9 @@ export interface FileRoutesById {
   '/farmer/guide': typeof FarmerGuideRoute
   '/farmer/request': typeof FarmerRequestRoute
   '/farmer/': typeof FarmerIndexRoute
+  '/farmer/assessments/$requestId': typeof FarmerAssessmentsRequestIdRoute
   '/farmer/buyers/$buyerId': typeof FarmerBuyersBuyerIdRoute
+  '/farmer/assessments/': typeof FarmerAssessmentsIndexRoute
   '/farmer/buyers/': typeof FarmerBuyersIndexRoute
 }
 export interface FileRouteTypes {
@@ -118,7 +137,9 @@ export interface FileRouteTypes {
     | '/farmer/guide'
     | '/farmer/request'
     | '/farmer/'
+    | '/farmer/assessments/$requestId'
     | '/farmer/buyers/$buyerId'
+    | '/farmer/assessments/'
     | '/farmer/buyers/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -129,7 +150,9 @@ export interface FileRouteTypes {
     | '/farmer/guide'
     | '/farmer/request'
     | '/farmer'
+    | '/farmer/assessments/$requestId'
     | '/farmer/buyers/$buyerId'
+    | '/farmer/assessments'
     | '/farmer/buyers'
   id:
     | '__root__'
@@ -141,7 +164,9 @@ export interface FileRouteTypes {
     | '/farmer/guide'
     | '/farmer/request'
     | '/farmer/'
+    | '/farmer/assessments/$requestId'
     | '/farmer/buyers/$buyerId'
+    | '/farmer/assessments/'
     | '/farmer/buyers/'
   fileRoutesById: FileRoutesById
 }
@@ -211,6 +236,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FarmerRequestRouteImport
       parentRoute: typeof FarmerRoute
     }
+    '/farmer/assessments/': {
+      id: '/farmer/assessments/'
+      path: '/assessments'
+      fullPath: '/farmer/assessments/'
+      preLoaderRoute: typeof FarmerAssessmentsIndexRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/assessments/$requestId': {
+      id: '/farmer/assessments/$requestId'
+      path: '/assessments/$requestId'
+      fullPath: '/farmer/assessments/$requestId'
+      preLoaderRoute: typeof FarmerAssessmentsRequestIdRouteImport
+      parentRoute: typeof FarmerRoute
+    }
     '/farmer/buyers/': {
       id: '/farmer/buyers/'
       path: '/buyers'
@@ -232,7 +271,9 @@ interface FarmerRouteChildren {
   FarmerGuideRoute: typeof FarmerGuideRoute
   FarmerRequestRoute: typeof FarmerRequestRoute
   FarmerIndexRoute: typeof FarmerIndexRoute
+  FarmerAssessmentsRequestIdRoute: typeof FarmerAssessmentsRequestIdRoute
   FarmerBuyersBuyerIdRoute: typeof FarmerBuyersBuyerIdRoute
+  FarmerAssessmentsIndexRoute: typeof FarmerAssessmentsIndexRoute
   FarmerBuyersIndexRoute: typeof FarmerBuyersIndexRoute
 }
 
@@ -240,7 +281,9 @@ const FarmerRouteChildren: FarmerRouteChildren = {
   FarmerGuideRoute: FarmerGuideRoute,
   FarmerRequestRoute: FarmerRequestRoute,
   FarmerIndexRoute: FarmerIndexRoute,
+  FarmerAssessmentsRequestIdRoute: FarmerAssessmentsRequestIdRoute,
   FarmerBuyersBuyerIdRoute: FarmerBuyersBuyerIdRoute,
+  FarmerAssessmentsIndexRoute: FarmerAssessmentsIndexRoute,
   FarmerBuyersIndexRoute: FarmerBuyersIndexRoute,
 }
 

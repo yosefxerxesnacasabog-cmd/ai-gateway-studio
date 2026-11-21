@@ -72,7 +72,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       if (event.type === "session.input_transcript.delta" || event.type === "session.output_transcript.delta") {
         const delta = typeof event["delta"] === "string" ? event["delta"] : "";
         if (!delta) return;
-        const role = event.type === "session.input_transcript.delta" ? "user" : "assistant";
+        const role: Caption["role"] = event.type === "session.input_transcript.delta" ? "user" : "assistant";
         if (role === "assistant") setWorking(false);
         setCaptions((rows) => {
           const last = rows.at(-1);

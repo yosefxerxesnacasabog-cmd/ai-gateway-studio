@@ -360,7 +360,14 @@ function RequestPage() {
                 photo={draft.photo}
                 error={errors.photo}
                 onChange={(p) => set("photo", p)}
-                onError={(m) => setErrors((e) => ({ ...e, photo: m }))}
+                onError={(m) =>
+                  setErrors((e) => {
+                    const n = { ...e };
+                    if (m) n.photo = m;
+                    else delete n.photo;
+                    return n;
+                  })
+                }
               />
             </CollapsibleContent>
           </Collapsible>

@@ -12,16 +12,14 @@ export function PageHeader({
 }: {
   title: string;
   intro?: ReactNode;
-  back?: { label: string } & Pick<LinkProps, "to" | "params" | "search">;
+  back?: { label: string; to: NonNullable<LinkProps["to"]>; params?: LinkProps["params"]; search?: LinkProps["search"] };
   eyebrow?: string;
 }) {
   return (
     <header className="mb-6">
       {back && (
         <Link
-          to={back.to}
-          params={back.params}
-          search={back.search}
+          {...({ to: back.to, params: back.params, search: back.search } as LinkProps)}
           className="focus-ring -ml-2 mb-3 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 font-semibold text-primary hover:bg-accent"
         >
           <ArrowLeft className="size-5" aria-hidden="true" />
