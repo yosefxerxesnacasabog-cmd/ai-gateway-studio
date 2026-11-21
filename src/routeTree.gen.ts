@@ -10,33 +10,147 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FarmerRouteImport } from './routes/farmer'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as TraderRouteImport } from './routes/trader'
+import { Route as FarmerIndexRouteImport } from './routes/farmer.index'
+import { Route as FarmerGuideRouteImport } from './routes/farmer.guide'
+import { Route as FarmerRequestRouteImport } from './routes/farmer.request'
+import { Route as FarmerBuyersIndexRouteImport } from './routes/farmer.buyers.index'
+import { Route as FarmerBuyersBuyerIdRouteImport } from './routes/farmer.buyers.$buyerId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FarmerRoute = FarmerRouteImport.update({
+  id: '/farmer',
+  path: '/farmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TraderRoute = TraderRouteImport.update({
+  id: '/trader',
+  path: '/trader',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarmerIndexRoute = FarmerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerGuideRoute = FarmerGuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerRequestRoute = FarmerRequestRouteImport.update({
+  id: '/request',
+  path: '/request',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerBuyersIndexRoute = FarmerBuyersIndexRouteImport.update({
+  id: '/buyers/',
+  path: '/buyers/',
+  getParentRoute: () => FarmerRoute,
+} as any)
+const FarmerBuyersBuyerIdRoute = FarmerBuyersBuyerIdRouteImport.update({
+  id: '/buyers/$buyerId',
+  path: '/buyers/$buyerId',
+  getParentRoute: () => FarmerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/farmer': typeof FarmerRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/sign-in': typeof SignInRoute
+  '/trader': typeof TraderRoute
+  '/farmer/guide': typeof FarmerGuideRoute
+  '/farmer/request': typeof FarmerRequestRoute
+  '/farmer/': typeof FarmerIndexRoute
+  '/farmer/buyers/$buyerId': typeof FarmerBuyersBuyerIdRoute
+  '/farmer/buyers/': typeof FarmerBuyersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/register': typeof RegisterRoute
+  '/sign-in': typeof SignInRoute
+  '/trader': typeof TraderRoute
+  '/farmer/guide': typeof FarmerGuideRoute
+  '/farmer/request': typeof FarmerRequestRoute
+  '/farmer': typeof FarmerIndexRoute
+  '/farmer/buyers/$buyerId': typeof FarmerBuyersBuyerIdRoute
+  '/farmer/buyers': typeof FarmerBuyersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/farmer': typeof FarmerRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/sign-in': typeof SignInRoute
+  '/trader': typeof TraderRoute
+  '/farmer/guide': typeof FarmerGuideRoute
+  '/farmer/request': typeof FarmerRequestRoute
+  '/farmer/': typeof FarmerIndexRoute
+  '/farmer/buyers/$buyerId': typeof FarmerBuyersBuyerIdRoute
+  '/farmer/buyers/': typeof FarmerBuyersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/farmer'
+    | '/register'
+    | '/sign-in'
+    | '/trader'
+    | '/farmer/guide'
+    | '/farmer/request'
+    | '/farmer/'
+    | '/farmer/buyers/$buyerId'
+    | '/farmer/buyers/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/register'
+    | '/sign-in'
+    | '/trader'
+    | '/farmer/guide'
+    | '/farmer/request'
+    | '/farmer'
+    | '/farmer/buyers/$buyerId'
+    | '/farmer/buyers'
+  id:
+    | '__root__'
+    | '/'
+    | '/farmer'
+    | '/register'
+    | '/sign-in'
+    | '/trader'
+    | '/farmer/guide'
+    | '/farmer/request'
+    | '/farmer/'
+    | '/farmer/buyers/$buyerId'
+    | '/farmer/buyers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FarmerRoute: typeof FarmerRouteWithChildren
+  RegisterRoute: typeof RegisterRoute
+  SignInRoute: typeof SignInRoute
+  TraderRoute: typeof TraderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +162,97 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/farmer': {
+      id: '/farmer'
+      path: '/farmer'
+      fullPath: '/farmer'
+      preLoaderRoute: typeof FarmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trader': {
+      id: '/trader'
+      path: '/trader'
+      fullPath: '/trader'
+      preLoaderRoute: typeof TraderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farmer/': {
+      id: '/farmer/'
+      path: '/'
+      fullPath: '/farmer/'
+      preLoaderRoute: typeof FarmerIndexRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/guide': {
+      id: '/farmer/guide'
+      path: '/guide'
+      fullPath: '/farmer/guide'
+      preLoaderRoute: typeof FarmerGuideRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/request': {
+      id: '/farmer/request'
+      path: '/request'
+      fullPath: '/farmer/request'
+      preLoaderRoute: typeof FarmerRequestRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/buyers/': {
+      id: '/farmer/buyers/'
+      path: '/buyers'
+      fullPath: '/farmer/buyers/'
+      preLoaderRoute: typeof FarmerBuyersIndexRouteImport
+      parentRoute: typeof FarmerRoute
+    }
+    '/farmer/buyers/$buyerId': {
+      id: '/farmer/buyers/$buyerId'
+      path: '/buyers/$buyerId'
+      fullPath: '/farmer/buyers/$buyerId'
+      preLoaderRoute: typeof FarmerBuyersBuyerIdRouteImport
+      parentRoute: typeof FarmerRoute
+    }
   }
 }
 
+interface FarmerRouteChildren {
+  FarmerGuideRoute: typeof FarmerGuideRoute
+  FarmerRequestRoute: typeof FarmerRequestRoute
+  FarmerIndexRoute: typeof FarmerIndexRoute
+  FarmerBuyersBuyerIdRoute: typeof FarmerBuyersBuyerIdRoute
+  FarmerBuyersIndexRoute: typeof FarmerBuyersIndexRoute
+}
+
+const FarmerRouteChildren: FarmerRouteChildren = {
+  FarmerGuideRoute: FarmerGuideRoute,
+  FarmerRequestRoute: FarmerRequestRoute,
+  FarmerIndexRoute: FarmerIndexRoute,
+  FarmerBuyersBuyerIdRoute: FarmerBuyersBuyerIdRoute,
+  FarmerBuyersIndexRoute: FarmerBuyersIndexRoute,
+}
+
+const FarmerRouteWithChildren =
+  FarmerRoute._addFileChildren(FarmerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FarmerRoute: FarmerRouteWithChildren,
+  RegisterRoute: RegisterRoute,
+  SignInRoute: SignInRoute,
+  TraderRoute: TraderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
